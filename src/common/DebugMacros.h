@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2022 Bill Greiman
+ * Copyright (c) 2011-2021 Bill Greiman
  * This file is part of the SdFat library for SD memory cards.
  *
  * MIT License
@@ -27,7 +27,8 @@
 #include "SysCall.h"
 
 // 0 - disable, 1 - fail, halt 2 - fail, halt, warn
-#define USE_DBG_MACROS 0
+#define USE_DBG_MACROS 2
+#define DBG_PORT Serial
 
 #if USE_DBG_MACROS
 #include "Arduino.h"
@@ -35,26 +36,23 @@
 #error DBG_FILE not defined
 #endif  // DBG_FILE
 
+
 __attribute__((unused)) static void dbgFail(uint16_t line) {
-  Serial.print(F("DBG_FAIL: "));
-  Serial.print(F(DBG_FILE));
-  Serial.write('.');
-  Serial.println(line);
+  DBG_PORT.print(F("DBG_FAIL: "));
+  DBG_PORT.print(F(DBG_FILE));
+  DBG_PORT.write('.');
+  DBG_PORT.println(line);
 }
 __attribute__((unused)) static void dbgHalt(uint16_t line) {
-  Serial.print(F("DBG_HALT: "));
-  Serial.print(F(DBG_FILE));
-  Serial.write('.');
-  Serial.println(line);
-  while (true) {
-  }
+  DBG_PORT.print(F("DBG_HALT: "));
+  DBG_PORT.print(F(DBG_FILE));
+  DBG_PORT.write('.');
+  DBG_PORT.println(line);
+  while (true) {}
 }
 #define DBG_FAIL_MACRO dbgFail(__LINE__)
 #define DBG_HALT_MACRO dbgHalt(__LINE__)
-#define DBG_HALT_IF(b) \
-  if (b) {             \
-    dbgHalt(__LINE__); \
-  }
+#define DBG_HALT_IF(b) if (b) {dbgHalt(__LINE__);}
 
 #else  // USE_DBG_MACROS
 #define DBG_FAIL_MACRO
@@ -64,16 +62,13 @@ __attribute__((unused)) static void dbgHalt(uint16_t line) {
 
 #if USE_DBG_MACROS > 1
 __attribute__((unused)) static void dbgWarn(uint16_t line) {
-  Serial.print(F("DBG_WARN: "));
-  Serial.print(F(DBG_FILE));
-  Serial.write('.');
-  Serial.println(line);
+  DBG_PORT.print(F("DBG_WARN: "));
+  DBG_PORT.print(F(DBG_FILE));
+  DBG_PORT.write('.');
+  DBG_PORT.println(line);
 }
 #define DBG_WARN_MACRO dbgWarn(__LINE__)
-#define DBG_WARN_IF(b) \
-  if (b) {             \
-    dbgWarn(__LINE__); \
-  }
+#define DBG_WARN_IF(b) if (b) {dbgWarn(__LINE__);}
 #else  // USE_DBG_MACROS > 1
 #define DBG_WARN_MACRO
 #define DBG_WARN_IF(b)
